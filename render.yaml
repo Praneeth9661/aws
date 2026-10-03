@@ -10,8 +10,8 @@ services:
       - key: PORT
         value: "8081"
 
-  - type: static
-    name: aws-security-dashboard-frontend
+staticSites:
+  - name: aws-security-dashboard-frontend
     buildCommand: cd frontend && npm install && npm run build
     staticPublishPath: frontend/dist
     routes:
