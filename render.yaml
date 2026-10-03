@@ -1,0 +1,37 @@
+# Render Blueprint Configuration (render.yaml)
+# Automatically deploys the full-stack AWS Security Dashboard to Render.com
+
+services:
+  # ----------------------------------------------------
+  # 1. Spring Boot REST API Backend Service
+  # ----------------------------------------------------
+  - type: web
+    name: aws-security-dashboard-backend
+    env: docker
+    dockerContext: ./backend
+    dockerfilePath: ./backend/Dockerfile
+    plan: free
+    healthCheckPath: /api/health
+    envVars:
+      - key: PORT
+        value: 8081
+
+  # ----------------------------------------------------
+  # 2. React + Vite Frontend Static Site
+  # ----------------------------------------------------
+  - type: static
+    name: aws-security-dashboard-frontend
+    buildCommand: cd frontend && npm install && npm run build
+    staticPublishPath: ./frontend/dist
+    plan: free
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: VITE_API_URL
+        fromService:
+          type: web
+          name: aws-security-dashboard-backend
+          property: url
+          append: /api
